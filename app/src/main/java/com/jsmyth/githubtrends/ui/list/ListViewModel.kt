@@ -4,9 +4,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
 class ListViewModel : ViewModel() {
-    val navigateToDetails: MutableLiveData<Boolean> = MutableLiveData()
+    val navigateToDetails: MutableLiveData<ListItemViewModel> = MutableLiveData()
 
-    fun onDetailClick() {
-        navigateToDetails.value = true
+    fun onItemClicked(item: ListItemViewModel) {
+        navigateToDetails.value = item
     }
 }

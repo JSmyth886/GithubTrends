@@ -13,7 +13,6 @@ import com.jsmyth.githubtrends.databinding.DetailFragmentBinding
 
 class DetailFragment : BaseFragment() {
 
-
     companion object {
         fun newInstance() = DetailFragment()
     }
