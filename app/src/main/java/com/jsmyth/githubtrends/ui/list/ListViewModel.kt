@@ -13,34 +13,42 @@ import retrofit2.Response
 class ListViewModel : ViewModel() {
 
     val loadingRepos: ObservableField<Boolean> = ObservableField()
+    val noSearchResults: ObservableField<Boolean> = ObservableField()
+    val apiError: ObservableField<Boolean> = ObservableField()
 
     val repositoryList: MutableLiveData<MutableList<ListItemViewModel>> = MutableLiveData()
     val navigateToDetails: MutableLiveData<ListItemViewModel> = MutableLiveData()
 
     init {
         loadingRepos.set(true)
+        apiError.set(false)
+        noSearchResults.set(false)
         RepositoryManager
         val api = ApiService()
         api.getTrending("Android").enqueue(object : Callback<Repositories> {
             override fun onFailure(call: Call<Repositories>?, t: Throwable?) {
-                //TODO: Show error loading view
+                loadingRepos.set(false)
+                apiError.set(true)
             }
 
             override fun onResponse(call: Call<Repositories>?, response: Response<Repositories>?) {
-                //TODO: Response not successful show a "No results view"
-                if (response!!.isSuccessful) {
-                    val list: MutableList<ListItemViewModel> = ArrayList()
-                    for (data in  response.body()!!.items) {
-                        val item = ListItemViewModel(this@ListViewModel, data)
-                        list.add(item)
-                    }
-
-                    repositoryList.value = list
+                if (!response!!.isSuccessful || response.body()!!.items.isEmpty()) {
                     loadingRepos.set(false)
+                    noSearchResults.set(true)
+                    return
                 }
+
+                val list: MutableList<ListItemViewModel> = ArrayList()
+                for (data in  response.body()!!.items) {
+                    val item = ListItemViewModel(this@ListViewModel, data)
+                    list.add(item)
+                }
+
+                repositoryList.value = list
+                loadingRepos.set(false)
             }
         })
-        }
+    }
 
     fun onItemClicked(item: ListItemViewModel) {
         RepositoryManager.currentRepository = item.repository

@@ -2,4 +2,6 @@
     <string name="app_name">Github Trends</string>
     <string name="url_label">URL:</string>
     <string name="description_label">Description:</string>
+    <string name="no_search_results">No results found</string>
+    <string name="error">Error loading results</string>
 </resources>
