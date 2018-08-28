@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Github Trends</string>
+    <string name="url_label">URL:</string>
+    <string name="description_label">Description:</string>
 </resources>
