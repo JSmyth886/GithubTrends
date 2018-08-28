@@ -13,7 +13,6 @@ import com.jsmyth.githubtrends.R
 import com.jsmyth.githubtrends.common.BaseFragment
 import com.jsmyth.githubtrends.databinding.ListFragmentBinding
 import com.jsmyth.githubtrends.ui.detail.DetailFragment
-import java.util.ArrayList
 
 class ListFragment : BaseFragment() {
 
@@ -46,23 +45,20 @@ class ListFragment : BaseFragment() {
         binding.recycler.adapter = adapter
         binding.recycler.layoutManager = linearLayoutManager
 
-        //TODO: Remove when API call is implemented
-        val list: MutableList<ListItemViewModel> = ArrayList()
-        for (i in 1..100) {
-            val item = ListItemViewModel(viewModel)
-            item.name = "NAME$i"
-            item.description = "DESCRIPTION$i"
-            list.add(item)
-        }
-        adapter.updateRepos(list)
-
         viewModel.navigateToDetails.observe(this, Observer(::navigateToDetail))
+        viewModel.repositoryList.observe(this, Observer(::repositoryListUpdated))
     }
 
     private fun navigateToDetail(item: ListItemViewModel?) {
         if (item != null) {
             (activity as MainActivity).navigate(DetailFragment.newInstance(), true)
             viewModel.navigateToDetails.value = null
+        }
+    }
+
+    private fun repositoryListUpdated(list: MutableList<ListItemViewModel>?) {
+        if (list != null) {
+            adapter.updateRepos(list)
         }
     }
 }

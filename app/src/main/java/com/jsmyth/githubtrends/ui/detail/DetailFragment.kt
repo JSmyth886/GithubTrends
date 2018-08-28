@@ -5,11 +5,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import com.jsmyth.githubtrends.R
 import com.jsmyth.githubtrends.common.BaseFragment
 import com.jsmyth.githubtrends.databinding.DetailFragmentBinding
+import com.jsmyth.githubtrends.data.RepositoryManager
 
 class DetailFragment : BaseFragment() {
 
@@ -21,7 +21,7 @@ class DetailFragment : BaseFragment() {
     private lateinit var binding: DetailFragmentBinding
 
     init {
-        title = "Details"
+        title = RepositoryManager.currentRepository.name
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -34,9 +34,6 @@ class DetailFragment : BaseFragment() {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(DetailViewModel::class.java)
         binding.viewModel = viewModel
-
-
-        // TODO: Use the ViewModel
     }
 
 }
