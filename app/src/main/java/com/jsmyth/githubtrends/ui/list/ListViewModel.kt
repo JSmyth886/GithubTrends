@@ -1,12 +1,13 @@
 package com.jsmyth.githubtrends.ui.list
 
-import android.annotation.SuppressLint
 import androidx.databinding.ObservableField
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.jsmyth.githubtrends.data.Repositories
 import com.jsmyth.githubtrends.service.ApiService
 import com.jsmyth.githubtrends.data.RepositoryManager
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -31,29 +32,32 @@ class ListViewModel : ViewModel() {
         //Search for Repo's with the keyword Android and created date of 1 week ago
         val query = "Android+created:" + getDaysAgo(7)
         val api = ApiService()
-        api.getTrending(query).enqueue(object : Callback<Repositories> {
-            override fun onFailure(call: Call<Repositories>?, t: Throwable?) {
-                loadingRepos.set(false)
-                apiError.set(true)
-            }
-
-            override fun onResponse(call: Call<Repositories>?, response: Response<Repositories>?) {
-                if (!response!!.isSuccessful || response.body()!!.items.isEmpty()) {
+        launch(CommonPool) {
+            api.getTrending(query).enqueue(object : Callback<Repositories> {
+                override fun onFailure(call: Call<Repositories>?, t: Throwable?) {
                     loadingRepos.set(false)
-                    noSearchResults.set(true)
-                    return
+                    apiError.set(true)
                 }
 
-                val list: MutableList<ListItemViewModel> = ArrayList()
-                for (data in  response.body()!!.items) {
-                    val item = ListItemViewModel(this@ListViewModel, data)
-                    list.add(item)
-                }
+                override fun onResponse(call: Call<Repositories>?, response: Response<Repositories>?) {
+                    if (!response!!.isSuccessful || response.body()!!.items.isEmpty()) {
+                        loadingRepos.set(false)
+                        noSearchResults.set(true)
+                        return
+                    }
 
-                repositoryList.value = list
-                loadingRepos.set(false)
-            }
-        })
+                    val list: MutableList<ListItemViewModel> = mutableListOf()
+                    for (data in  response.body()!!.items) {
+                        val item = ListItemViewModel(this@ListViewModel, data)
+                        list.add(item)
+                    }
+
+                    repositoryList.value = list
+                    loadingRepos.set(false)
+                }
+            })
+        }
+
     }
 
     fun onItemClicked(item: ListItemViewModel) {
@@ -61,11 +65,10 @@ class ListViewModel : ViewModel() {
         navigateToDetails.value = item
     }
 
-    @SuppressLint("SimpleDateFormat")
-    fun getDaysAgo(daysAgo: Int): String {
+    private fun getDaysAgo(daysAgo: Int): String {
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -daysAgo)
-        val format = SimpleDateFormat("yyy-MM-dd")
+        val format = SimpleDateFormat("yyy-MM-dd", Locale.ENGLISH)
         return format.format(calendar.time)
     }
 }
